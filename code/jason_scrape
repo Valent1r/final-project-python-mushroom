@@ -1,0 +1,302 @@
+pip install webdriver_manager
+
+from bs4 import BeautifulSoup
+import requests
+import re
+import json
+from urllib.parse import urljoin
+
+
+def scrape_mushroom_list(url):
+    data = requests.get(url).text
+    soup = BeautifulSoup(data, 'html.parser')
+
+    # Trouver tous les liens vers les pages individuelles des champignons
+    mushroom_links = soup.find_all('a', href=re.compile(r'/show\?n='))
+    mushroom_urls = [urljoin('http://www.mushroom.world', link['href']) for link in mushroom_links]
+
+    # Récupérer les informations pour chaque champignon
+    mushrooms = [scrape_mushroom(link) for link in mushroom_urls]
+
+    return mushrooms
+
+
+def scrape_mushroom(url):
+    data = requests.get(url).text
+    soup = BeautifulSoup(data, 'html.parser')
+
+    # Extraire les informations spécifiques pour un champignon individuel
+    name_content = soup.find(class_="caption").find("b").contents
+    names = re.sub('[^A-Za-z0-9( ]+', '', name_content[0]).split("(")
+    names = [n.strip() for n in names]
+    name1 = names[0]
+    name2 = names[1] if len(names) > 1 else ''
+
+    labels = soup.find_all(class_="labelus")
+    labels = [label.contents[0] for label in labels]
+
+    texts = soup.find_all(class_="textus")
+    texts = [text.contents[0] for text in texts]
+
+    description = soup.find(class_="longtextus").contents
+    description = [re.sub('[^A-Za-z0-9,.<> ]+', '', str(d)).strip() for d in description]
+    description = [re.sub('<b>', '', d) for d in description if (d != "") & (d != "<br>")]
+    description.insert(0, 'General')
+    description = dict(zip(description[0::2], description[1::2]))
+
+    texts.append(description)
+    assert len(labels) == len(texts)
+
+    images = soup.find(id="mushroom-list").find_all(class_="image")
+    image_urls = [urljoin('http://www.mushroom.world', image.a["href"]) for image in images]
+
+    mushroom = dict(name1=name1, name2=name2, images=image_urls, info=dict())
+
+    for i in range(len(labels)):
+        mushroom["info"][labels[i]] = texts[i]
+
+    return mushroom
+
+
+if __name__ == '__main__':
+    # Lien vers la liste de tous les champignons sur mushroom.world
+    all_mushrooms_url = 'http://www.mushroom.world/mushrooms/namelist'
+
+    # Récupérer les informations sur tous les champignons
+    all_mushrooms = scrape_mushroom_list(all_mushrooms_url)
+
+    # Dictionnaire de comestibilité
+    edibility_dict = {
+
+
+  "Agaricus arvensis": "c",
+  "Agaricus augustus": "c",
+  "Agaricus campestris": "c",
+  "Agaricus sylvicola": "c",
+  "Agrocybe pediades": "c",
+  "Agrocybe praecox": "c",
+  "Albatrellus confluens": "p",
+  "Albatrellus ovinus": "c",
+  "Aleuria aurantia": "p",
+  "Amanita battarrae": "p",
+  "Amanita bisporigera": "p",
+  "Amanita cokeri": "p",
+  "Amanita fulva": "p",
+  "Amanita jacksonii": "p",
+  "Amanita muscaria": "p",
+  "Amanita pantherina": "p",
+  "Amanita phalloides": "p",
+  "Amanita porphyria": "p",
+  "Amanita regalis": "p",
+  "Amanita rubescens": "c",
+  "Amanita vaginata": "p",
+  "Amanita virosa": "p",
+  "Ampulloclitocybe clavipes": "p",
+  "Armillaria mellea": "c",
+  "Auriscalpium vulgare": "p",
+  "Bankera fuligineoalba": "p",
+  "Boletus edulis": "c",
+  "Boletus pinophilus": "c",
+  "Bondarzewia berkeleyi": "p",
+  "Bovista nigrescens": "p",
+  "Bovista plumbea": "p",
+  "Calocera viscosa": "p",
+  "Calocybe gambosa": "p",
+  "Calocybe persicolor": "p",
+  "Calvatia gigantea": "p",
+  "Cantharellula umbonata": "p",
+  "Cantharellus cibarius": "c",
+  "Chalciporus piperatus": "p",
+  "Chlorophyllum molybdites": "p",
+  "Chlorophyllum rhacodes": "p",
+  "Chroogomphus britannicus": "p",
+  "Clathrus ruber": "p",
+  "Conocybe apala": "p",
+  "Coprinellus disseminatus": "p",
+  "Coprinellus xanthothrix": "p",
+  "Coprinopsis atramentaria": "p",
+  "Coprinopsis variegata": "p",
+  "Conocybe apala": "p",
+  "Coprinopsis variegata": "p",
+  "Coprinus comatus": "p",
+  "Coprinus plicatilis": "p",
+  "Cortinarius alboviolaceus": "p",
+  "Cortinarius armillatus": "p",
+  "Cortinarius camphoratus": "p",
+  "Cortinarius caperatus": "p",
+  "Cortinarius collinitus": "p",
+  "Cortinarius croceus": "p",
+  "Cortinarius laniger": "p",
+  "Cortinarius malicorius": "p",
+  "Cortinarius mucosus": "p",
+  "Cortinarius orellanus": "p",
+  "Cortinarius rubellus": "p",
+  "Cortinarius semisanguineus": "p",
+  "Cortinarius traganus": "p",
+  "Cortinarius violaceus": "p",
+  "Craterellus tubaeformis": "c",
+  "Cystoderma amianthinum": "p",
+  "Cystodermella cinnabarina": "p",
+  "Entoloma sericeum": "p",
+  "Entoloma vernum": "p",
+  "Galerina marginata": "p",
+  "Geastrum rufescens": "p",
+  "Gomphidius glutinosus": "p",
+  "Gymnopilus picreus": "p",
+  "Gymnopus peronatus": "p",
+  "Gyromitra esculenta": "p",
+  "Gyromitra esculenta": "p",
+  "Gyromitra infula": "p",
+  "Hebeloma crustuliniforme": "p",
+  "Hebeloma mesophaeum": "p",
+  "Helvella elastica": "p",
+  "Hericium americanum": "p",
+  "Hericium cirrhatum": "p",
+  "Hericium erinaceus": "p",
+  "Hortiboletus rubellus": "p",
+  "Hydnum repandum": "p",
+  "Hydnum rufescens": "p",
+  "Hygrophoropsis aurantiaca": "p",
+  "Hygrophorus camarophyllus": "p",
+  "Hygrophorus hypothejus": "p",
+  "Hygrophorus hypothejus": "p",
+  "Hygrophorus pustulatus": "c",
+  "Hypholoma capnoides": "p",
+  "Hypholoma fasciculare": "p",
+  "Hypholoma lateritium": "p",
+  "Hypholoma lateritium": "p",
+  "Hypholoma marginatum": "p",
+  "Imleria badia": "p",
+  "Inocybe lacera": "p",
+  "Kuehneromyces lignicola": "p",
+  "Kuehneromyces mutabilis": "p",
+  "Laccaria laccata": "p",
+  "Lacrymaria lacrymabunda": "p",
+  "Lactarius camphoratus": "p",
+  "Lactarius deliciosus": "c",
+  "Lactarius deterrimus": "p",
+  "Lactarius helvus": "p",
+  "Lactarius indigo": "p",
+  "Lactarius lignyotus": "p",
+  "Lactarius mammosus": "p",
+  "Lactarius rufus": "p",
+  "Lactarius tabidus": "p",
+  "Lactarius torminosus": "p",
+  "Lactarius trivialis": "p",
+  "Lactarius turpis": "p",
+  "Lactarius volemus": "p",
+  "Lactifluus piperatus": "p",
+  "Laetiporus sulphureus": "p",
+  "Leccinum aurantiacum": "p",
+  "Leccinum scabrum": "p",
+  "Leccinum versipelle": "p",
+  "Lepiota clypeolaria": "p",
+  "Leucocoprinus birnbaumii": "p",
+  "Leucocybe connata": "p",
+  "Lycoperdon excipuliforme": "p",
+  "Lycoperdon nigrescens": "p",
+  "Lycoperdon perlatum": "p",
+  "Lycoperdon pratense": "p",
+  "Lycoperdon pyriforme": "p",
+  "Macrolepiota procera": "p",
+  "Marasmiellus perforans": "p",
+  "Marasmius oreades": "p",
+  "Melanoleuca cognata": "p",
+  "Morchella elata": "p",
+  "Morchella esculenta": "p",
+  "Mycena epipterygia": "p",
+  "Mycena galericulata": "p",
+  "Mycena laevigata": "p",
+  "Mycena pura": "p",
+  "Omphalotus illudens": "p",
+  "Omphalotus olearius": "p",
+  "Otidea onotica": "p",
+  "Panaeolus foenisecii": "p",
+  "Paxillus involutus": "p",
+  "Peziza badia": "p",
+  "Phallus impudicus": "p",
+  "Phallus rubicundus": "p",
+  "Pholiota alnicola": "p",
+  "Pholiota aurivella": "p",
+  "Pholiota limonella": "p",
+  "Pholiota squarrosa": "p",
+  "Pleurotus citrinopileatus": "p",
+  "Pleurotus ostreatus": "c",
+  "Pleurotus pulmonarius": "c",
+  "Polyporus ciliatus": "p",
+  "Polyporus squamosus": "p",
+  "Psathyrella candolleana": "c",
+  "Psathyrella microrrhiza": "p",
+  "Psathyrella sp.": "p",
+  "Psilocybe semilanceata": "p",
+  "Rickenella swartzii": "c",
+  "Rubroboletus satanas": "p",
+  "Russula acrifolia": "p",
+  "Russula adusta": "p",
+  "Russula aeruginea": "p",
+  "Russula claroflava": "p",
+  "Russula paludosa": "c",
+  "Russula velenovskyi": "p",
+  "Russula vesca": "c",
+  "Russula vinosa": "c",
+  "Russula xerampelina": "c",
+  "Sarcodon squamosus": "p",
+  "Strobilomyces strobilaceus": "p",
+  "Strobilurus esculentus": "c",
+  "Strobilurus stephanocystis": "p",
+  "Stropharia hornemannii": "p",
+  "Suillus americanus": "c",
+  "Suillus bovinus": "c",
+  "Suillus grevillei": "p",
+  "Suillus luteus": "c",
+  "Suillus variegatus": "p",
+  "Tapinella atrotomentosa": "c",
+  "Tapinella panuoides": "p",
+  "Tricholoma aestuans": "p",
+  "Tricholoma equestre": "c",
+  "Tricholoma focale": "p",
+  "Tricholoma saponaceum": "p",
+  "Tricholoma sejunctum": "p",
+  "Tricholoma stiparophyllum": "p",
+  "Tricholomopsis decora": "p",
+  "Tricholomopsis rutilans": "p",
+  "Turbinellus floccosus": "p",
+  "Tylopilus felleus": "p",
+  "Xerocomellus chrysenteron": "c",
+  "Xerocomus subtomentosus": "c",
+  "Xeromphalina campanella": "p",
+  "Tricholomopsis decora": "p",
+  "Clitocybe gibba": "c",
+  "Clitocybe nuda": "c",
+  "Clitopilus prunulus": "c",
+  "Collybia dryophila": "c",
+  "Coltricia perennis": "p",
+  "Conocybe apalas": "p",
+  "Marasmius rotula": "p",
+  "Tricholomataceae": "c",
+  "Ramaria lutea": "p",
+  "Rhizina undulata": "p",
+  "Russula decolorans": "c",
+  "Russula emetica": "p",
+  "Russula mustelina": "c",
+  "Clitocybe nebularis": "p"
+
+    }
+
+
+    # Ajouter la comestibilité à la sortie finale
+
+
+
+for mushroom in all_mushrooms:
+    name = mushroom["name1"]
+    if name in edibility_dict:
+        mushroom["comestibility"] = edibility_dict[name]
+    else:
+        mushroom["comestibility"] = "Information non disponible"
+    # Supprimer l'information d'édibilité provenant de la page web
+    if "Edibility" in mushroom["info"]:
+        del mushroom["info"]["Edibility"]
+
+# Afficher les informations (ou les enregistrer dans un fichier, etc.)
+print(json.dumps(all_mushrooms, indent=2))
