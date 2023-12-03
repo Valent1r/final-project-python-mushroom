@@ -1,7 +1,17 @@
 !pip install webdriver_manager
 !pip install Image
 
-#
+#extracts information about mushrooms from the website http://www.mushroom.world.
+#1.uses the BeautifulSoup library (from bs4 import BeautifulSoup) to perform HTML analysis of web pages, and the modules requests, re, json, and urljoin 
+#to make HTTP requests, handle regular expressions, process JSON data, and manage URLs, respectively.
+#2.scrape_mushroom_list(url) takes a URL as a parameter, retrieves the HTML content of the page, finds all links pointing to individual mushroom pages, 
+#and then uses the function scrape_mushroom(url) to extract specific information about each mushroom.
+#3.The function scrape_mushroom(url) retrieves information such as the name, labels, texts, and images for a specific mushroom from its individual page.
+#4.The script uses a dictionary (edibility_dict) to store information about the edibility of mushrooms, where "c" stands for edible, and "p" stands for poisonous
+#5.The edibility information for each mushroom extracted from the web page is removed since the value is empty, and the edibility is added to the final output 
+#each extracted mushroom.
+#script displays information about all mushrooms in an indented JSON string.
+
 from bs4 import BeautifulSoup
 import requests
 import re
@@ -302,8 +312,24 @@ if __name__ == '__main__':
     print(json.dumps(all_mushrooms, indent=2))
 
 
-
-
+#uses the Python libraries pandas and Pillow (PIL) to process data from a JSON file containing information about mushrooms. 
+#1.	Import Libraries:
+#•	import pandas as pd: Imports the pandas library and aliases it as pd.
+#•	from PIL import Image: Imports the Image module from the Pillow library for working with images.
+#2.	File Path and Data Loading:
+#•	file_path = "champiURL.json": Specifies the file path for the JSON file containing mushroom information.
+#•	df = pd.read_json(file_path): Reads the JSON file into a pandas DataFrame.
+#3.	Data Processing:
+#•	df = df.explode('images', ignore_index=True): Explodes the 'images' column, which likely contains lists of image URLs, 
+#into separate rows while ignoring the index. This is often done to handle nested lists in DataFrames.
+#•	df = df.drop(columns=['info']): Drops the 'info' column from the DataFrame.
+#4.	Mapping Comestibility:
+#•	Dico = {"c": 1, "p": 0}: Creates a dictionary mapping comestibility codes ("c" for edible, "p" for poisonous) to numerical values 
+#(1 : c, 0 : p).
+#•	df["comestibility"] = df["comestibility"].map(Dico): Maps the values in the 'comestibility' column using the defined dictionary, converting 
+#comestibility codes to numerical values.
+#5.	Display DataFrame:
+#•	df: Displays the modified DataFrame, which now includes numerical values for comestibility.
 
 import pandas as pd
 from PIL import Image
@@ -322,6 +348,22 @@ df["comestibility"] = df["comestibility"].map(Dico)
 df
 
 
+#This code essentially fetches images from URLs in the DataFrame, converts them to base64 format, and stores the encoded images in the encoded_images list. 
+#1.	Imports:
+#•	from io import BytesIO: Imports the BytesIO class from the io module, which is used to create in-memory binary streams.
+#•	import base64: Imports the base64 module for encoding and decoding base64 data.
+#•	import requests: Imports the requests module for making HTTP requests.
+#2.	Empty List Initialization:
+#•	encoded_images = []: Initializes an empty list named encoded_images to store base64-encoded images.
+#3.	Loop Through DataFrame and Fetch Images:
+#•	code iterates through each row of the DataFrame (df) using a loop.
+#•	For each iteration:
+#•	It retrieves the image URL from the 'images' column of the DataFrame.
+#•	Makes a GET request to the URL using requests.get(url).
+#•	If successful (status code 200), it opens the image using PIL (Pillow), converts it to base64 using base64.b64encode(), 
+#and appends the encoded image to the encoded_images list.
+#4.	Printing Progress:
+#•	if i % 50 == 0:: Prints the progress every 50 iterations, indicating the number of images processed out of the total.
 
 from io import BytesIO
 import base64
@@ -349,9 +391,10 @@ for i in range(len(df)):
 
 
 
-
+#Creates a new column in the DataFrame df called "encoded_images" and populates it with the contents of the ist encoded_images. 
+#contains base64-encoded images.
 df["encoded_images"] = encoded_images
 df
 
-
+#creation of a csv 
 df.to_csv("champipiFinal.csv")
