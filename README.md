@@ -24,11 +24,11 @@ The diferent steps in our project :
    
 The problems in our project :
 
-1.with our dataset, we only had 6000 images so we had to modify theses images by the zoom, rotation and create more and more of images to have a better result with our IA during the CNN. 
--Large size for all images during encoding
--Difficulty using the JSON, which was in the wrong format for loading (HTML <a> tags)
--Images stored in JSON as lists of URLs, so it was necessary to remove the lists and transform the URLs into encoded images in string format using Base64.
--Recreate the JSON data manually because the labels we needed were no longer present in the dataset (Information not available) on the edibility of all mushroom species. Therefore, we had to search for the edibility of each mushroom in the dataset, mark it in our JSON, and replace the missing information.
--Have a sequential model that works and, during training, provides meaningful results. The initial results considered too much of the dataset, leading to no improvement in accuracy over epochs and an increase in loss. It was necessary to reduce the number of layers and the complexity of our AI.
+1. with our dataset, we only had 6000 images so we had to modify theses images by the zoom, rotation and create more and more of images to have a better result with our IA during the CNN. 
+2. Large size for all images during encoding
+3. Difficulty using the JSON, which was in the wrong format for loading (HTML <a> tags)
+4. Images stored in JSON as lists of URLs, so it was necessary to remove the lists and transform the URLs into encoded images in string format using Base64.
+5. Recreate the JSON data manually because the labels we needed were no longer present in the dataset (Information not available) on the edibility of all mushroom species. Therefore, we had to search for the edibility of each mushroom in the dataset, mark it in our JSON, and replace the missing information.
+6. Have a sequential model that works and, during training, provides meaningful results. The initial results considered too much of the dataset, leading to no improvement in accuracy over epochs and an increase in loss. It was necessary to reduce the number of layers and the complexity of our AI.
 
 
