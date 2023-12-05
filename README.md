@@ -14,10 +14,21 @@ The diferent steps in our project :
 
 1. find a dataset of mushroom in "Mushroom world"
 2. scrap information about species, edibility (binary classify as 0=eadible and 1=poisonous) and the link to the images
-3. Jason
-4. convert the images to base 64 and encode it to put in a list and a dataframe
-5. CNN
+3. create fake images to have a large sample
+4. fetch images from URL in dataframe -> convert the images to base 64 and encode it to put in a list
+5. training the model with x_train and y_train
+6. use a three_layered sequential model with a last outer layer of Sigmoid (binary)
+7. compile the model with Adam model
+8. predict with an image from the dataset given and add a precision rate to know the eadibility
 
+   
 The problems in our project :
 
 1.with our dataset, we only had 6000 images so we had to modify theses images by the zoom, rotation and create more and more of images to have a better result with our IA during the CNN. 
+-Large size for all images during encoding
+-Difficulty using the JSON, which was in the wrong format for loading (HTML <a> tags)
+-Images stored in JSON as lists of URLs, so it was necessary to remove the lists and transform the URLs into encoded images in string format using Base64.
+-Recreate the JSON data manually because the labels we needed were no longer present in the dataset (Information not available) on the edibility of all mushroom species. Therefore, we had to search for the edibility of each mushroom in the dataset, mark it in our JSON, and replace the missing information.
+-Have a sequential model that works and, during training, provides meaningful results. The initial results considered too much of the dataset, leading to no improvement in accuracy over epochs and an increase in loss. It was necessary to reduce the number of layers and the complexity of our AI.
+
+
