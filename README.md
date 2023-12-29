@@ -10,7 +10,7 @@ so we had to adapt and look to another solution And that's how our research led 
 We aim to help users visually distinguish the differences and similarities between an edible mushroom and a toxic one by a binary method. 
 The application will provide a toxicity percentage for the collected mushroom.
 
-The diferent steps in our project : 
+The different steps in our project : 
 
 1. find a dataset of mushroom in "Mushroom world"
 2. scrap information about species, edibility (binary classify as 0=eadible and 1=poisonous) and the link to the images
